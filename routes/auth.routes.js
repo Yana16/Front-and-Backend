@@ -1,18 +1,21 @@
 const { Router } = require("express");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
-const config = require("../client/src/pages/routes");
+const config = require("config");
 const bcrypt = require("bcryptjs");
-const User = require("../models/users");
+const User = require("../models/User");
 const router = Router();
 
 //Endpoint (register) /api/auth/register
 router.post(
   "/register",
-  [check("email", "Некоректный email").isEmail()],
-  [check("password", "Мин кол-во символовЖ 6").isLength({ min: 6 })],
+  [
+    check("email", "Некорректный email").isEmail(),
+    check("password", "Мин кол-во символов: 6").isLength({ min: 6 }),
+  ],
   async (req, res) => {
     try {
+      console.log("Body:", req.body);
       const errors = validationResult(req);
 
       if (!errors.isEmpty()) {
@@ -34,6 +37,7 @@ router.post(
 
       const hashedPassword = await bcrypt.hash(password, 12);
       const user = new User({ email, password: hashedPassword });
+      console.log(user);
 
       await user.save();
 
@@ -41,7 +45,7 @@ router.post(
 
       //то, что отправляем с фронтенд
     } catch (err) {
-      res.status(500).json({ message: "Что-то не так пошло" });
+      res.status(500).json({ message: "Что-то пошло не так" });
     }
   }
 );
@@ -50,7 +54,7 @@ router.post(
 router.post(
   "/login",
   [
-    check("email", "ВВедите корректный email").normalizeEmail().isEmail(),
+    check("email", "Введите корректный email").normalizeEmail().isEmail(),
     check("password", "Введите пароль").exists(),
   ],
 
