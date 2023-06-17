@@ -47,6 +47,7 @@ router.post(
     } catch (err) {
       res.status(500).json({ message: "Что-то пошло не так" });
     }
+    // console.log(err);
   }
 );
 
